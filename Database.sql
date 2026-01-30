@@ -50,9 +50,21 @@ INSERT INTO recipes (category, food_name, description) VALUES
 
 
 -- 5. Add some "unhealthy" items so the bot can warn users later
+USE healthy_food_db;
+
+-- Adding your new unhealthy food list
 INSERT INTO recipes (category, food_name, description, is_healthy) VALUES 
-('General', 'Pizza', 'High in saturated fats and refined carbs.', FALSE),
-('General', 'Soda', 'Contains excessive sugar and zero nutritional value.', FALSE);
+('Unhealthy', 'Fast food (burgers, pizza)', 'High in calories, unhealthy fats, and sodium.', FALSE),
+('Unhealthy', 'Fried foods (fried chicken, fries)', 'Contains trans fats which increase heart disease risk.', FALSE),
+('Unhealthy', 'Sugary soft drinks', 'High in added sugar, leading to weight gain and tooth decay.', FALSE),
+('Unhealthy', 'Sweets & candies', 'Provides empty calories with no nutritional value.', FALSE),
+('Unhealthy', 'Cakes & pastries', 'High in sugar and refined flour, causing blood sugar spikes.', FALSE),
+('Unhealthy', 'Instant noodles', 'Highly processed and very high in sodium (salt).', FALSE),
+('Unhealthy', 'Chips & packaged snacks', 'Often contain preservatives and unhealthy fats.', FALSE),
+('Unhealthy', 'Processed meats (sausages, hot dogs)', 'Linked to increased health risks due to nitrates and salt.', FALSE);
+
+-- Verify the list
+SELECT * FROM recipes WHERE is_healthy = FALSE;
 
 -- 6. Verify the data is there
 SELECT * FROM recipes;

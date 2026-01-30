@@ -119,33 +119,61 @@ elif st.session_state.step == 4:
         st.session_state.step = 5
         st.rerun()
 
-# --- STEP 5: FINAL SEARCH & EXPLANATION ---
+# --- STEP 5: SEARCH RESULT & TRANSITION TO UNHEALTHY ---
 elif st.session_state.step == 5:
-    # Use the food name the user typed in Step 4
     selected = st.session_state.selected_food
     
     try:
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        # Search for the food name. We use LIKE so 'Idli' works even with typos
-        query = "SELECT food_name, description FROM recipes WHERE food_name LIKE %s LIMIT 1"
-        cursor.execute(query, (f"%{selected}%",))
+        # Search for the specific food description
+        cursor.execute("SELECT food_name, description FROM recipes WHERE food_name LIKE %s LIMIT 1", (f"%{selected}%",))
         result = cursor.fetchone()
         conn.close()
 
         if result:
-            # Display the real description from your database
-            ans = f"✅ **{result['food_name']}**: {result['description']}"
+            ans = f"**{result['food_name']}**: {result['description']}"
         else:
-            # Message if the food isn't in your table
-            ans = f"❌ I'm sorry, I couldn't find '{selected}' in my healthy food list. Please try a name from the list above!"
+            ans = f"I'm sorry, '{selected}' is not in my list. Try a food from the suggestions above!"
         
-        # Save the result to history so it stays on screen
+        # Save search result to history
         st.session_state.messages.append({"role": "assistant", "content": ans})
         
-        # Reset to Step 4 so the user can immediately ask about another food
-        st.session_state.step = 4
-        st.rerun()
+        # NEW: Ask if they want to know about unhealthy foods
+        transition_q = "If you need to know about unhealthy food, click the button below."
+        with st.chat_message("assistant"):
+            st.write(ans)
+            st.write(transition_q)
+        
+        if st.button("Unhealthy foods"):
+            # Move to Step 6 to show the unhealthy list
+            st.session_state.messages.append({"role": "assistant", "content": transition_q})
+            st.session_state.messages.append({"role": "user", "content": "Unhealthy foods"})
+            st.session_state.step = 6
+            st.rerun()
 
     except Exception as e:
-        st.error(f"Error fetching details: {e}")
+        st.error(f"Error: {e}")
+
+# --- STEP 6: DISPLAY UNHEALTHY LIST ---
+elif st.session_state.step == 6:
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Fetch only items marked as NOT healthy
+        cursor.execute("SELECT food_name FROM recipes WHERE is_healthy = FALSE")
+        unhealthy_foods = [row[0] for row in cursor.fetchall()]
+        conn.close()
+        
+        unhealthy_msg = "**Unhealthy Food List:**\n" + "\n".join([f"* {f}" for f in unhealthy_foods])
+        
+        with st.chat_message("assistant"):
+            st.write(unhealthy_msg)
+            
+        # Save to history
+        st.session_state.messages.append({"role": "assistant", "content": unhealthy_msg})
+        
+        st.success("Step 5 and 6 Complete! Ready for Step 7?")
+        
+    except Exception as e:
+        st.error(f"Database error: {e}")
