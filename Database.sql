@@ -43,7 +43,11 @@ INSERT INTO recipes (category, food_name, description) VALUES
 ('Dinner', 'Steamed vegetables', 'Retains maximum nutrients compared to frying.'),
 ('Dinner', 'Light dal', 'Provides protein without being too heavy on the stomach.'),
 ('Dinner', 'Grilled fish', 'Easy-to-digest protein with healthy fats.'),
-('Dinner', 'Paneer (low fat)', 'Good calcium source for bone health while you sleep.');
+('Dinner', 'Paneer (low fat)', 'Good calcium source for bone health while you sleep.'),
+('Dinner', 'Boiled eggs', 'Simple protein source that supports body repair during sleep.'),
+('Dinner', 'Stir-fried vegetables (less oil)', 'Quick to cook, keeps nutrients, and easy for the stomach.'),
+('Dinner', 'Fruit bowl', 'Natural sweetness with vitamins and fiber for a light end to the day.');
+
 
 -- 5. Add some "unhealthy" items so the bot can warn users later
 INSERT INTO recipes (category, food_name, description, is_healthy) VALUES 
@@ -56,12 +60,7 @@ SELECT * FROM recipes;
 USE healthy_food_db;
 
 -- Create table for Step 2 Categories
-CREATE TABLE IF NOT EXISTS food_categories (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    category_name VARCHAR(100),
-    examples TEXT,
-    benefits TEXT
-);
+TRUNCATE TABLE food_categories;
 
 -- Insert Step 2 data
 INSERT INTO food_categories (category_name, examples, benefits) VALUES 
@@ -70,3 +69,5 @@ INSERT INTO food_categories (category_name, examples, benefits) VALUES
 ('Whole Grains', 'Brown rice, oats, whole-wheat bread', 'Gives long-lasting energy, Good for digestion, Controls blood sugar'),
 ('Protein Foods', 'Animal: Fish, eggs, milk, chicken | Plant: Lentils, beans, nuts', 'Builds muscles, Repairs body tissues, Strengthens immunity'),
 ('Healthy Fats', 'Nuts, seeds, avocado, olive oil', 'Good for heart and brain, Helps absorb vitamins');
+
+SELECT * FROM food_categories;

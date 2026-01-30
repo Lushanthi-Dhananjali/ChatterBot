@@ -119,7 +119,33 @@ elif st.session_state.step == 4:
         st.session_state.step = 5
         st.rerun()
 
-# --- STEP 5: PLACEHOLDER ---
+# --- STEP 5: FINAL SEARCH & EXPLANATION ---
 elif st.session_state.step == 5:
-    with st.chat_message("assistant"):
-        st.write(f"I am now searching for information about: **{st.session_state.selected_food}**")
+    # Use the food name the user typed in Step 4
+    selected = st.session_state.selected_food
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        # Search for the food name. We use LIKE so 'Idli' works even with typos
+        query = "SELECT food_name, description FROM recipes WHERE food_name LIKE %s LIMIT 1"
+        cursor.execute(query, (f"%{selected}%",))
+        result = cursor.fetchone()
+        conn.close()
+
+        if result:
+            # Display the real description from your database
+            ans = f"✅ **{result['food_name']}**: {result['description']}"
+        else:
+            # Message if the food isn't in your table
+            ans = f"❌ I'm sorry, I couldn't find '{selected}' in my healthy food list. Please try a name from the list above!"
+        
+        # Save the result to history so it stays on screen
+        st.session_state.messages.append({"role": "assistant", "content": ans})
+        
+        # Reset to Step 4 so the user can immediately ask about another food
+        st.session_state.step = 4
+        st.rerun()
+
+    except Exception as e:
+        st.error(f"Error fetching details: {e}")
