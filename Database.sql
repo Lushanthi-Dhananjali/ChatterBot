@@ -50,7 +50,7 @@ INSERT INTO recipes (category, food_name, description) VALUES
 
 
 -- 5. Add some "unhealthy" items so the bot can warn users later
-USE healthy_food_db;
+
 
 -- Adding your new unhealthy food list
 INSERT INTO recipes (category, food_name, description, is_healthy) VALUES 
@@ -66,6 +66,9 @@ INSERT INTO recipes (category, food_name, description, is_healthy) VALUES
 -- Verify the list
 SELECT * FROM recipes WHERE is_healthy = FALSE;
 
+
+-- Verify the updates
+SELECT food_name, description FROM recipes WHERE is_healthy = FALSE;
 -- 6. Verify the data is there
 SELECT * FROM recipes;
 

@@ -166,14 +166,46 @@ elif st.session_state.step == 6:
         conn.close()
         
         unhealthy_msg = "**Unhealthy Food List:**\n" + "\n".join([f"* {f}" for f in unhealthy_foods])
+        next_prompt = "Give me any name from the unhealthy list above, and I can explain why you should avoid it!"
         
         with st.chat_message("assistant"):
             st.write(unhealthy_msg)
+            st.write(next_prompt)
             
-        # Save to history
+        # Save both to history
         st.session_state.messages.append({"role": "assistant", "content": unhealthy_msg})
+        st.session_state.messages.append({"role": "assistant", "content": next_prompt})
         
-        st.success("Step 5 and 6 Complete! Ready for Step 7?")
+        # Move to Step 7 for the explanation search
+        st.session_state.step = 7
+        st.rerun()
         
     except Exception as e:
         st.error(f"Database error: {e}")
+
+# --- STEP 7: UNHEALTHY FOOD EXPLANATION SEARCH ---
+elif st.session_state.step == 7:
+    # We don't need to st.write here because history loop handles the prompt
+    if user_unhealthy := st.chat_input("Type an unhealthy food name (e.g., Pizza, Soda)..."):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT food_name, description FROM recipes WHERE food_name LIKE %s AND is_healthy = FALSE LIMIT 1", (f"%{user_unhealthy}%",))
+            result = cursor.fetchone()
+            conn.close()
+
+            if result:
+                ans = f"⚠️ **{result['food_name']}**: {result['description']}"
+            else:
+                ans = f"I couldn't find '{user_unhealthy}' in my unhealthy list. Please try a name from the list above!"
+            
+            st.session_state.messages.append({"role": "user", "content": user_unhealthy})
+            st.session_state.messages.append({"role": "assistant", "content": ans})
+            st.rerun()
+
+        except Exception as e:
+            st.error(f"Database error: {e}")
+
+    if st.button("I'm done with unhealthy foods"):
+        st.session_state.step = 8
+        st.rerun()
