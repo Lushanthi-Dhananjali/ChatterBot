@@ -312,3 +312,49 @@ elif st.session_state.step == 10:
             
         except Exception as e:
             st.error(f"Database error: {e}")
+
+# --- STEP 11: LIFESTYLE ACTIVITIES ---
+elif st.session_state.step == 11:
+    q11 = "Are you know what are the other activity for healthy life?"
+    with st.chat_message("assistant"):
+        st.write(q11)
+    
+    # Button to trigger the activities list
+    if st.button("Activities"):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM lifestyle_activities")
+            rows = cursor.fetchall()
+            conn.close()
+            
+            activity_msg = "### Healthy Lifestyle Activities:\n\n"
+            for r in rows:
+                activity_msg += f"**{r['category']}**\n"
+                activity_msg += f"* **Examples:** {r['examples']}\n"
+                activity_msg += f"* **Benefits:** {r['benefits']}\n\n"
+            
+            # Save the sequence to history
+            st.session_state.messages.append({"role": "assistant", "content": q11})
+            st.session_state.messages.append({"role": "user", "content": "Activities"})
+            st.session_state.messages.append({"role": "assistant", "content": activity_msg})
+            
+            # Move to the final conclusion step
+            st.session_state.step = 12 
+            st.rerun()
+        except Exception as e:
+            st.error(f"Database error: {e}")
+
+# --- STEP 12: FINAL CONCLUSION ---
+elif st.session_state.step == 12:
+    final_wish = "✨ Eat well, drink enough water, stay active, and may good health always stay with you!"
+    
+    with st.chat_message("assistant"):
+        st.write(final_wish)
+        st.write("Thank you for using the Healthy Eating Guide!")
+
+    # A button to let users start over from Step 1
+    if st.button("Restart the Guide"):
+        st.session_state.messages = [] # Clear the chat history
+        st.session_state.step = 1      # Reset to the first step
+        st.rerun()                     # Refresh the app

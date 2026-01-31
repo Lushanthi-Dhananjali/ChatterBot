@@ -118,12 +118,8 @@ SELECT * FROM food_categories;
 USE healthy_food_db;
 
 -- Create table for Step 10 Water Timing
-CREATE TABLE IF NOT EXISTS water_timing (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    time_label VARCHAR(50),
-    instruction TEXT,
-    benefits TEXT
-);
+
+TRUNCATE TABLE water_timing;
 
 -- Insert your specific list
 INSERT INTO water_timing (time_label, instruction, benefits) VALUES 
@@ -131,3 +127,23 @@ INSERT INTO water_timing (time_label, instruction, benefits) VALUES
 ('🍽️ Before Meals', '1 glass 30 minutes before meals.', 'Helps digestion and prevents overeating.'),
 ('🏃 During the Day', 'Small sips every 30–60 minutes. Drink more if hot or sweating.', 'Maintains hydration levels.'),
 ('🌙 Night', '1 glass before bed (not too much).', 'Keeps body hydrated during sleep.');
+
+USE healthy_food_db;
+
+CREATE TABLE IF NOT EXISTS lifestyle_activities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(100),
+    examples TEXT,
+    benefits TEXT
+);
+
+TRUNCATE TABLE lifestyle_activities;
+
+-- 3. Insert your specific list
+INSERT INTO lifestyle_activities (category, examples, benefits) VALUES 
+('🏃 Physical Activities', 'Walking, Jogging, Cycling, Skipping, Sports, Dancing', 'Keeps body fit, controls weight, strengthens heart'),
+('🧘 Exercise & Yoga', 'Stretching, Yoga, Meditation, Breathing exercises', 'Reduces stress, improves flexibility, keeps mind calm'),
+('😴 Proper Sleep', 'Adults: 7–8 hrs | Students: 8–9 hrs', 'Improves memory, refreshes body, boosts immunity'),
+('🧠 Mental Health', 'Reading, Music, Spending time with family/friends', 'Reduces anxiety, improves focus, keeps you happy'),
+('🚭 Avoid Bad Habits', 'No Smoking, No Alcohol, Less screen time', 'Protects heart & lungs, improves overall health'),
+('🌞 Outdoor & Social', 'Gardening, Sunlight exposure, Helping others', 'Vitamin D, positive mood, social bonding');
