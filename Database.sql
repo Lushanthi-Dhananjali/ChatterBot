@@ -75,11 +75,7 @@ SELECT * FROM recipes;
 USE healthy_food_db;
 
 -- 1. Create the missing table
-CREATE TABLE IF NOT EXISTS health_consequences (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    problem_title VARCHAR(100),
-    details TEXT
-);
+TRUNCATE TABLE health_consequences;
 
 -- 2. Insert your health problems list
 INSERT INTO health_consequences (problem_title, details) VALUES 
@@ -92,6 +88,18 @@ INSERT INTO health_consequences (problem_title, details) VALUES
 
 -- 3. Verify it worked
 SELECT * FROM health_consequences;
+
+USE healthy_food_db;
+
+-- 1. Clear old water data if it exists
+TRUNCATE TABLE water_guide;
+
+-- 2. Insert the specific volume limits
+INSERT INTO water_guide (time_of_day, guideline, benefits) VALUES 
+('Adults', '2–3 liters per day', 'About 8–12 glasses'),
+('Children', '1–2 liters per day', 'Essential for growth and hydration');
+
+
 USE healthy_food_db;
 
 -- Create table for Step 2 Categories
@@ -106,3 +114,20 @@ INSERT INTO food_categories (category_name, examples, benefits) VALUES
 ('Healthy Fats', 'Nuts, seeds, avocado, olive oil', 'Good for heart and brain, Helps absorb vitamins');
 
 SELECT * FROM food_categories;
+
+USE healthy_food_db;
+
+-- Create table for Step 10 Water Timing
+CREATE TABLE IF NOT EXISTS water_timing (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    time_label VARCHAR(50),
+    instruction TEXT,
+    benefits TEXT
+);
+
+-- Insert your specific list
+INSERT INTO water_timing (time_label, instruction, benefits) VALUES 
+('🌅 Morning', '1–2 glasses after waking up.', 'Removes toxins and boosts metabolism.'),
+('🍽️ Before Meals', '1 glass 30 minutes before meals.', 'Helps digestion and prevents overeating.'),
+('🏃 During the Day', 'Small sips every 30–60 minutes. Drink more if hot or sweating.', 'Maintains hydration levels.'),
+('🌙 Night', '1 glass before bed (not too much).', 'Keeps body hydrated during sleep.');

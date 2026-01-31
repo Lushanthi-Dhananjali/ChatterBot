@@ -241,7 +241,7 @@ elif st.session_state.step == 8:
             # This is where your red error comes from
             st.error(f"Database error: {e}")
 
-# --- STEP 9: HYDRATION GUIDE ---
+# --- STEP 9: WATER INTAKE CHOICE ---
 elif st.session_state.step == 9:
     question_9 = "How much water should we drink per day?"
     with st.chat_message("assistant"):
@@ -249,36 +249,66 @@ elif st.session_state.step == 9:
     
     col1, col2 = st.columns(2)
     
-    # Choice 1: User wants to know
+    # Choice 1: User wants to know the daily amount
     if col1.button("Per day"):
+        # Specific details requested for Adults and Children
+        ans_water = """
+        **Adults:** 2–3 liters per day (about 8–12 glasses)
+        **Children:** 1–2 liters per day
+        """
+        
+        # Save the sequence to history
+        st.session_state.messages.append({"role": "assistant", "content": question_9})
+        st.session_state.messages.append({"role": "user", "content": "Per day"})
+        st.session_state.messages.append({"role": "assistant", "content": ans_water})
+        
+        # Move to the final conclusion step
+        st.session_state.step = 10 
+        st.rerun()
+
+    # Choice 2: User skips the information
+    if col2.button("I don't need to know that"):
+        skip_msg = "Oky, go next one."
+        
+        # Save the skip interaction to history
+        st.session_state.messages.append({"role": "assistant", "content": question_9})
+        st.session_state.messages.append({"role": "user", "content": "I don't need to know that"})
+        st.session_state.messages.append({"role": "assistant", "content": skip_msg})
+        
+        # Move to the final conclusion step
+        st.session_state.step = 10 
+        st.rerun()
+
+# --- STEP 10: WHEN TO DRINK WATER ---
+elif st.session_state.step == 10:
+    q10 = "When should you drink water?"
+    with st.chat_message("assistant"):
+        st.write(q10)
+    
+    # The button you requested
+    if st.button("Drinking water"):
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM water_guide")
-            guide = cursor.fetchall()
+            cursor.execute("SELECT * FROM water_timing")
+            timing_data = cursor.fetchall()
             conn.close()
             
-            water_info = "### Daily Water Schedule:\n\n"
-            for row in guide:
-                water_info += f"**{row['time_of_day']}**\n"
-                water_info += f"* {row['guideline']}\n"
-                water_info += f"* {row['benefits']}\n\n"
+            # Format the list from the database
+            schedule_msg = "### Best Times to Drink Water:\n\n"
+            for row in timing_data:
+                schedule_msg += f"**{row['time_label']}**\n"
+                schedule_msg += f"* {row['instruction']}\n"
+                schedule_msg += f"* {row['benefits']}\n\n"
             
-            st.session_state.messages.append({"role": "assistant", "content": question_9})
-            st.session_state.messages.append({"role": "user", "content": "Per day"})
-            st.session_state.messages.append({"role": "assistant", "content": water_info})
+            # Save the interaction to history
+            st.session_state.messages.append({"role": "assistant", "content": q10})
+            st.session_state.messages.append({"role": "user", "content": "Drinking water"})
+            st.session_state.messages.append({"role": "assistant", "content": schedule_msg})
             
-            st.session_state.step = 10 # Final step!
+            # Move to the final conclusion step
+            st.session_state.step = 11 
             st.rerun()
+            
         except Exception as e:
             st.error(f"Database error: {e}")
-
-    # Choice 2: User skips
-    if col2.button("I don't need know about that"):
-        skip_msg = "Oky, go next one."
-        st.session_state.messages.append({"role": "assistant", "content": question_9})
-        st.session_state.messages.append({"role": "user", "content": "I don't need know about that"})
-        st.session_state.messages.append({"role": "assistant", "content": skip_msg})
-        
-        st.session_state.step = 10 # Move to the end
-        st.rerun()
