@@ -168,9 +168,7 @@ elif st.session_state.step == 6:
         unhealthy_msg = "**Unhealthy Food List:**\n" + "\n".join([f"* {f}" for f in unhealthy_foods])
         next_prompt = "Give me any name from the unhealthy list above, and I can explain why you should avoid it!"
         
-        with st.chat_message("assistant"):
-            st.write(unhealthy_msg)
-            st.write(next_prompt)
+        
             
         # Save both to history
         st.session_state.messages.append({"role": "assistant", "content": unhealthy_msg})
@@ -183,9 +181,10 @@ elif st.session_state.step == 6:
     except Exception as e:
         st.error(f"Database error: {e}")
 
+# --- STEP 7: UNHEALTHY FOOD EXPLANATION & TRANSITION ---
 # --- STEP 7: UNHEALTHY FOOD EXPLANATION SEARCH ---
 elif st.session_state.step == 7:
-    # We don't need to st.write here because history loop handles the prompt
+    # 1. Search logic
     if user_unhealthy := st.chat_input("Type an unhealthy food name (e.g., Pizza, Soda)..."):
         try:
             conn = get_db_connection()
@@ -197,15 +196,47 @@ elif st.session_state.step == 7:
             if result:
                 ans = f"⚠️ **{result['food_name']}**: {result['description']}"
             else:
-                ans = f"I couldn't find '{user_unhealthy}' in my unhealthy list. Please try a name from the list above!"
+                ans = f"I couldn't find '{user_unhealthy}' in my unhealthy list."
             
+            # Transition Question
+            transition_q = "What are the problems caused by unhealthy food?"
+
+            # Save to history
             st.session_state.messages.append({"role": "user", "content": user_unhealthy})
             st.session_state.messages.append({"role": "assistant", "content": ans})
+            st.session_state.messages.append({"role": "assistant", "content": transition_q})
+            
+            # Move to Step 8 so the button appears
+            st.session_state.step = 8
             st.rerun()
-
         except Exception as e:
             st.error(f"Database error: {e}")
 
-    if st.button("I'm done with unhealthy foods"):
-        st.session_state.step = 8
-        st.rerun()
+# --- STEP 8: DISPLAY THE HEALTH PROBLEMS LIST ---
+elif st.session_state.step == 8:
+    # This button matches the one in your red circle
+    if st.button("Problems"):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            # This query matches the table we just created
+            cursor.execute("SELECT * FROM health_consequences")
+            problems = cursor.fetchall()
+            conn.close()
+
+            # Build the list for the chat history
+            output = "### Problems Caused by Unhealthy Food:\n\n"
+            for p in problems:
+                output += f"**{p['problem_title']}**\n{p['details']}\n\n"
+            
+            # Save the result so it stays on screen
+            st.session_state.messages.append({"role": "user", "content": "Problems"})
+            st.session_state.messages.append({"role": "assistant", "content": output})
+            
+            # Move to the final "Healthy Habits" or "Restart" step
+            st.session_state.step = 9
+            st.rerun()
+            
+        except Exception as e:
+            # This is where your red error comes from
+            st.error(f"Database error: {e}")

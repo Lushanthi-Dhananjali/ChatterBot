@@ -74,6 +74,26 @@ SELECT * FROM recipes;
 
 USE healthy_food_db;
 
+-- 1. Create the missing table
+CREATE TABLE IF NOT EXISTS health_consequences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    problem_title VARCHAR(100),
+    details TEXT
+);
+
+-- 2. Insert your health problems list
+INSERT INTO health_consequences (problem_title, details) VALUES 
+(' Obesity', 'Excess body weight. Causes tiredness and low confidence.'),
+(' Diabetes', 'High blood sugar. Long-term health damage.'),
+(' Heart Diseases', 'High cholesterol. Risk of heart attack.'),
+(' Poor Digestion', 'Constipation. Stomach pain.'),
+(' Weak Immunity', 'Get sick often. Slow recovery.'),
+(' Low Concentration', 'Affects studies/work. Causes laziness.');
+
+-- 3. Verify it worked
+SELECT * FROM health_consequences;
+USE healthy_food_db;
+
 -- Create table for Step 2 Categories
 TRUNCATE TABLE food_categories;
 
