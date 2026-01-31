@@ -240,3 +240,45 @@ elif st.session_state.step == 8:
         except Exception as e:
             # This is where your red error comes from
             st.error(f"Database error: {e}")
+
+# --- STEP 9: HYDRATION GUIDE ---
+elif st.session_state.step == 9:
+    question_9 = "How much water should we drink per day?"
+    with st.chat_message("assistant"):
+        st.write(question_9)
+    
+    col1, col2 = st.columns(2)
+    
+    # Choice 1: User wants to know
+    if col1.button("Per day"):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM water_guide")
+            guide = cursor.fetchall()
+            conn.close()
+            
+            water_info = "### Daily Water Schedule:\n\n"
+            for row in guide:
+                water_info += f"**{row['time_of_day']}**\n"
+                water_info += f"* {row['guideline']}\n"
+                water_info += f"* {row['benefits']}\n\n"
+            
+            st.session_state.messages.append({"role": "assistant", "content": question_9})
+            st.session_state.messages.append({"role": "user", "content": "Per day"})
+            st.session_state.messages.append({"role": "assistant", "content": water_info})
+            
+            st.session_state.step = 10 # Final step!
+            st.rerun()
+        except Exception as e:
+            st.error(f"Database error: {e}")
+
+    # Choice 2: User skips
+    if col2.button("I don't need know about that"):
+        skip_msg = "Oky, go next one."
+        st.session_state.messages.append({"role": "assistant", "content": question_9})
+        st.session_state.messages.append({"role": "user", "content": "I don't need know about that"})
+        st.session_state.messages.append({"role": "assistant", "content": skip_msg})
+        
+        st.session_state.step = 10 # Move to the end
+        st.rerun()
